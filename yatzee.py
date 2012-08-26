@@ -2,6 +2,7 @@
 
 
 import random
+import copy
 
 # * * * * * * * * * * * * * * * *
 # * Dice Class                  *
@@ -41,20 +42,55 @@ ppDice = [None, ppOne, ppTwo, ppThree, ppFour, ppFive, ppSix]
 
 def prettyPrint(fivedice):
     print
-    print '|\t|'.join([ppDice[dice.value][0] for dice in fivedice])
-    print '|\t|'.join([ppDice[dice.value][1] for dice in fivedice])    
-    print '|\t|'.join([ppDice[dice.value][2] for dice in fivedice])    
+    print '|\t|'.join([ppDice[dice][0] for dice in fivedice])
+    print '|\t|'.join([ppDice[dice][1] for dice in fivedice])    
+    print '|\t|'.join([ppDice[dice][2] for dice in fivedice])    
     print
 
 # * * * * * * * * * * * * * * * *
 # * Dice Helpers                *
 # * * * * * * * * * * * * * * * *
 
+def roll():
+    return random.randrange(1,7)
+
 def makeFiveDice():
-    return [Dice(), Dice(), Dice(), Dice(), Dice()]
+    return [roll(), roll(), roll(), roll(), roll()]
 
 def printFiveDice(fivedice):
     return ' '.join([str(dice) for dice in fivedice])
+    
+def selectiveReroll(fivedice, lst):
+    new = copy.deepcopy(fivedice)
+    for item in lst:
+        new[item] = roll()
+    return new
+
+def allCombs(lst):
+    if len(lst) == 1:
+        'Base Case'
+        all = [[lst[0]], []]
+    else:
+        small = allCombs(lst[1:])
+        tall = [item + [lst[0]] for item in small]
+        all = tall + small
+        
+    return all
+        
+        
+def rollAgain(fivedice):
+    all = [selectiveReroll(fivedice, comb) for comb in allCombs([0,1,2,3,4])]
+    return all
+
+
+def pickBest(all):
+    scores = [scoreDice(dice) for dice in all]
+    best = (lambda x: (all[scores.index(x)], x))(max(scores))
+    best[0].sort()
+    prettyPrint(best[0])
+    print best[1]
+    return best[0]
+        
 
 # * * * * * * * * * * * * * * * *
 # * Tests                       *
@@ -63,27 +99,45 @@ def printFiveDice(fivedice):
 def testDice(fivedice):
     print "running tests"
     count = testNumber(fivedice)
-    print countAces(count)
-    print countTwos(count)
-    print countThrees(count)
-    print countFours(count)
-    print countFives(count)
-    print countSixes(count)
+    print "1s: ", countAces(count)
+    print "2s: ", countTwos(count)
+    print "3s: ", countThrees(count)
+    print "4s: ", countFours(count)
+    print "5s: ", countFives(count)
+    print "6s: ", countSixes(count)
     print
-    print testThreeOfKind(fivedice, count)
-    print testFourOfKind(fivedice, count)
-    print testFullHouse(fivedice)
-    print testSmallStraight(fivedice)
-    print testLargeStraight(fivedice)
-    print testYatzee(count)
-    print testChance(fivedice)
+    print "3k: ", testThreeOfKind(fivedice, count)
+    print "4k: ", testFourOfKind(fivedice, count)
+    print "FH: ", testFullHouse(count)
+    print "SS: ", testSmallStraight(fivedice)
+    print "LS: ", testLargeStraight(fivedice)
+    print "Yz: ", testYatzee(count)
+    print "Ch: ", testChance(fivedice)
+
+def scoreDice(fivedice):
+    count = testNumber(fivedice)
+    
+    scores = [countAces(count),
+              countTwos(count),
+              countThrees(count),
+              countFours(count),
+              countFives(count),
+              countSixes(count),
+              testThreeOfKind(fivedice, count),
+              testFourOfKind(fivedice, count),
+              testFullHouse(count),
+              testSmallStraight(fivedice),
+              testLargeStraight(fivedice),
+              testYatzee(count),
+              testChance(fivedice)]
+              
+    return max(scores)
 
 def testNumber(fivedice):
-    return [len(filter(lambda (x): x.value==num, fivedice)) for num in range(1,7)]
+    return [len(filter(lambda (x): x==num, fivedice)) for num in range(1,7)]
 
 def testNumbers(fivedice, lst):
-    dice = [die.value for die in fivedice]
-    return 0 not in [item in dice for item in lst]
+    return 0 not in [item in fivedice for item in lst]
 
 def getSum(fivedice):
     return reduce(lambda x, y: x + y, fivedice)
@@ -148,19 +202,26 @@ def testChance(fivedice):
 
 
 # * * * * * * * * * * * * * * * *
-# * Main Funstion               *
+# * Main Function               *
 # * * * * * * * * * * * * * * * *
 
 
 def main():
     fivedice = makeFiveDice()
-
-    prettyPrint(fivedice)
-    print printFiveDice(fivedice)
     fivedice.sort()
     prettyPrint(fivedice)
-    print printFiveDice(fivedice)    
-
+    print scoreDice(fivedice)
+    
+    #all = rollAgain(fivedice)    
+    #all2 = [rollAgain(item) for item in all]
+    #all3 = reduce(lambda x, y: x+y, all2)
+    #print len(all3)
+    #pickBest(all3)
+    
+    #pickBest(rollAgain(pickBest(all)))
+    
+    #prettyPrint(fivedice)
+    #print scoreDice(fivedice)
     testDice(fivedice)
 
 if __name__ == "__main__":
