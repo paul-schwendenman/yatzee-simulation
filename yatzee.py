@@ -7,24 +7,25 @@ import copy
 # * Dice Class                  *
 # * * * * * * * * * * * * * * * *
 
+
 class Dice():
     def __init__(self):
         self.roll()
-        
+
     def __str__(self):
         return str(self.value)
-    
+
     def __add__(self, other):
         return self.value + other.value
-    
+
     def __radd__(self, num):
         return num + self.value
-        
+
     def __lt__(self, other):
         return self.value < other.value
 
     def roll(self):
-        self.value = random.randrange(1,7)
+        self.value = random.randrange(1, 7)
 
 # * * * * * * * * * * * * * * * *
 # * Dice Pretty Print           *
@@ -39,31 +40,37 @@ ppSix = ["*   *", "*   *", "*   *"]
 
 ppDice = [None, ppOne, ppTwo, ppThree, ppFour, ppFive, ppSix]
 
+
 def prettyPrint(fivedice):
     print
     print '|\t|'.join([ppDice[dice][0] for dice in fivedice])
-    print '|\t|'.join([ppDice[dice][1] for dice in fivedice])    
-    print '|\t|'.join([ppDice[dice][2] for dice in fivedice])    
+    print '|\t|'.join([ppDice[dice][1] for dice in fivedice])
+    print '|\t|'.join([ppDice[dice][2] for dice in fivedice])
     print
 
 # * * * * * * * * * * * * * * * *
 # * Dice Helpers                *
 # * * * * * * * * * * * * * * * *
 
+
 def roll():
-    return random.randrange(1,7)
+    return random.randrange(1, 7)
+
 
 def makeFiveDice():
     return [roll(), roll(), roll(), roll(), roll()]
 
+
 def printFiveDice(fivedice):
     return ' '.join([str(dice) for dice in fivedice])
-    
+
+
 def selectiveReroll(fivedice, lst):
     new = copy.deepcopy(fivedice)
     for item in lst:
         new[item] = roll()
     return new
+
 
 def allCombs(lst):
     if len(lst) == 1:
@@ -73,12 +80,13 @@ def allCombs(lst):
         small = allCombs(lst[1:])
         tall = [item + [lst[0]] for item in small]
         all = tall + small
-        
+
     return all
-        
-        
+
+
 def rollAgain(fivedice):
-    all = [selectiveReroll(fivedice, comb) for comb in allCombs([0,1,2,3,4])]
+    all = [selectiveReroll(fivedice, comb) for comb in allCombs([0, 1, 2,
+          3, 4])]
     return all
 
 
@@ -89,11 +97,12 @@ def pickBest(all):
     prettyPrint(best[0])
     print best[1]
     return best[0]
-        
+
 
 # * * * * * * * * * * * * * * * *
 # * Tests                       *
 # * * * * * * * * * * * * * * * *
+
 
 def testDice(fivedice):
     print "running tests"
@@ -113,9 +122,10 @@ def testDice(fivedice):
     print "Yz: ", testYatzee(count)
     print "Ch: ", testChance(fivedice)
 
+
 def scoreDice(fivedice):
     count = testNumber(fivedice)
-    
+
     scores = [countAces(count),
               countTwos(count),
               countThrees(count),
@@ -129,35 +139,45 @@ def scoreDice(fivedice):
               testLargeStraight(fivedice),
               testYatzee(count),
               testChance(fivedice)]
-              
+
     return max(scores)
 
+
 def testNumber(fivedice):
-    return [len(filter(lambda (x): x==num, fivedice)) for num in range(1,7)]
+    return [len(filter(lambda (x): x == num, fivedice)) for num in range(1, 7)]
+
 
 def testNumbers(fivedice, lst):
     return 0 not in [item in fivedice for item in lst]
 
+
 def getSum(fivedice):
     return reduce(lambda x, y: x + y, fivedice)
+
 
 def countAces(count):
     return count[0]
 
+
 def countTwos(count):
     return count[1] * 2
+
 
 def countThrees(count):
     return count[2] * 3
 
+
 def countFours(count):
     return count[3] * 4
+
 
 def countFives(count):
     return count[4] * 5
 
+
 def countSixes(count):
     return count[5] * 6
+
 
 def testThreeOfKind(fivedice, count):
     if (3 in count):
@@ -165,16 +185,19 @@ def testThreeOfKind(fivedice, count):
     return 0
     #return [num >= 3 for num in count]
 
+
 def testFourOfKind(fivedice, count):
     if (4 in count):
         return getSum(fivedice)
     return 0
     #return [num >= 4 for num in count]
 
+
 def testFullHouse(count):
     if (3 in count) and (2 in count):
         return 25
     return 0
+
 
 def testSmallStraight(fivedice):
     if testNumbers(fivedice, [1, 2, 3, 4]) or \
@@ -183,18 +206,21 @@ def testSmallStraight(fivedice):
         return 30
     return 0
 
+
 def testLargeStraight(fivedice):
     if testNumbers(fivedice, [1, 2, 3, 4, 5]) or \
            testNumbers(fivedice, [2, 3, 4, 5, 6]):
         return 40
     return 0
     #return ((count[0] == 0) or (count[5] == 0)) and (max(count) == 1)
-    
+
+
 def testYatzee(count):
     if (5 in count):
         return 50
     return 0
     #return [num == 5 for num in count]
+
 
 def testChance(fivedice):
     return getSum(fivedice)
@@ -210,15 +236,15 @@ def main():
     fivedice.sort()
     prettyPrint(fivedice)
     print scoreDice(fivedice)
-    
-    #all = rollAgain(fivedice)    
+
+    #all = rollAgain(fivedice)
     #all2 = [rollAgain(item) for item in all]
     #all3 = reduce(lambda x, y: x+y, all2)
     #print len(all3)
     #pickBest(all3)
-    
+
     #pickBest(rollAgain(pickBest(all)))
-    
+
     #prettyPrint(fivedice)
     #print scoreDice(fivedice)
     testDice(fivedice)
